@@ -4,7 +4,7 @@ from kivy.lang.builder import Builder
 
 class LoginPage(Screen):
     def verify_credentials(self):
-        if self.ids["login"].text == "username" and self.ids["passw"].text == "password":
+        if self.ids["login"].text == "username" and self.ids["passw"].text == "password": #Сережа замени юзернейм и пассворд реквестами на бд это сравнение введённого и хранимого на бд
             self.manager.current = "user"
 
 class UserPage(Screen):
