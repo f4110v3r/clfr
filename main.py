@@ -10,7 +10,7 @@ def main(page: ft.Page):
         page.views.clear()
         page.views.append(
             ft.View(
-                route="/account",
+                "/account",
                 [
                     ft.TextField(label="Электронная почта", width=300),
                     ft.TextField(label="Пароль", password=True, width=300),
@@ -18,12 +18,13 @@ def main(page: ft.Page):
                 ],
             )
         )
-        if page.route=="/account":
-            page.views.append(
+    def route_change2(route):
+        page.views.clear()
+        page.views.append(
             ft.View(
-                "/account",
+                "/profile",
                 [
-                    ft.TextField(label="аывпв", width=300),
+                    ft.TextField(label="Электронная почта", width=300),
                     ft.TextField(label="Пароль", password=True, width=300),
                     ft.ElevatedButton(text="Войти", on_click=login)
                 ],
@@ -45,8 +46,8 @@ def main(page: ft.Page):
             print(mass)
             if mass['text'] == "Пользователь авторизориван!":
                 page.add(ft.Text(f"Успешный вход как {email}")) 
-                page.go("/account")
-                route_change(page)
+                page.go("/profile")
+                route_change("/profile")
             else: page.add(ft.Text(mass['error'], color=ft.colors.RED))
         else:
             page.add(ft.Text("Пожалуйста, введите электронную почту и пароль", color=ft.colors.RED))
@@ -66,4 +67,4 @@ def main(page: ft.Page):
     )
     
 # Запуск приложения
-ft.app(target=main)
+ft.app(target=main)ы
