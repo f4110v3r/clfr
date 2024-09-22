@@ -12,11 +12,13 @@ def main(page: ft.Page):
     email_input = ft.TextField(label="Электронная почта", width=300)
     password_input = ft.TextField(label="Пароль", password=True, width=300)
     
-    localHost = 'http://172.31.1.103:3000'
+    localHost = 'http://172.31.1.203:3000'
     
     # Функция перехода на страницу профиля
     def route_to_profile(user_info):
         page.views.clear()
+        page.title = "Личный кабинет"
+        page.bgcolor = ft.colors.WHITE
         page.views.append(
             ft.View(
                 "/profile",
@@ -71,8 +73,11 @@ def main(page: ft.Page):
             
             if response['text'] == "Пользователь авторизориван!":
                 # Получаем информацию о пользователе
+                user_info_json=requests.post(localHost+"/userpage",data={"login":email})
+                print(user_info_json)
+                uij=json.loads(user_info_json.text)
                 user_info = {
-                    "name": response.get('name', 'Без имени'),
+                    "name": uij['name'],
                     "login": email,
                     "photo_url": response.get('photo_url', 'https://via.placeholder.com/100')  # Заглушка на случай отсутствия фото
                 }
