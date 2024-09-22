@@ -70,7 +70,6 @@ def main(page: ft.Page):
         if email and password:
             r = requests.post(localHost + "/login", data={"login": email, "password": password})
             response = json.loads(r.text)
-            
             if response['text'] == "Пользователь авторизориван!":
                 # Получаем информацию о пользователе
                 user_info_json=requests.post(localHost+"/userpage",data={"login":email})
@@ -84,8 +83,7 @@ def main(page: ft.Page):
                 
                 # Переход на страницу профиля
                 route_to_profile(user_info)
-            else:
-                page.add(ft.Text(response['error'], color=ft.colors.RED))
+                
         else:
             page.add(ft.Text("Пожалуйста, введите электронную почту и пароль", color=ft.colors.RED))
 
