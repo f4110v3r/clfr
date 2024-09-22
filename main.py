@@ -12,7 +12,6 @@ def main(page: ft.Page):
     page.bgcolor = ft.colors.WHITE
     
     localHost = 'http://172.31.1.103:3000'
-    
     # Функция перехода на страницу профиля
     def route_to_profile():
         page.views.clear()
@@ -124,7 +123,7 @@ def main(page: ft.Page):
         elif selected_index == 2:
             route_to_leaderboard()
         page.update()
-
+    
     # Функция перехода на страницу авторизации
     def route_to_authorization():
         page.views.clear()
@@ -154,17 +153,65 @@ def main(page: ft.Page):
         page.views.clear()
         page.title = "Карта знаний"
         page.bgcolor = ft.colors.WHITE
+
+        # Пример данных с заданиями
+        tasks = [
+            {"number": 1, "title": "Задание 1"},
+            {"number": 2, "title": "Задание 2"},
+            {"number": 3, "title": "Задание 3"},
+            {"number": 4, "title": "Задание 4"},
+        ]
+
+        task_circles = ft.Row(
+            controls=[
+                ft.Container(
+                    content=ft.Text(str(task["number"]), color=ft.colors.WHITE, size=20),
+                    width=50,
+                    height=50,
+                    border_radius=25,
+                    bgcolor=ft.colors.BLUE,
+                    alignment=ft.alignment.center,
+                    on_click=lambda e: route_to_task(task["number"]),  # Переход на страницу задания
+                ) for task in tasks
+            ],
+            alignment=ft.MainAxisAlignment.CENTER,
+            spacing=20
+        )
+
         page.views.append(
             ft.View(
                 "/knowledge_map",
                 [
-                    ft.Text("Это карта знаний", size=24),
+                    ft.Column(
+                        controls=[
+                            ft.Text("Карта учебного курса", size=24, weight=ft.FontWeight.BOLD, text_align=ft.TextAlign.CENTER),
+                            task_circles
+                        ],
+                        alignment=ft.MainAxisAlignment.CENTER,
+                        spacing=20
+                    ),
                     create_bottom_nav(1)
                 ],
             )
         )
-        page.update()
+    page.update()
 
+    def route_to_task(task_number):
+        page.views.clear()
+        page.title = f"Задание {task_number}"
+        page.bgcolor = ft.colors.WHITE
+
+        # Здесь добавьте контент для страницы задания
+        page.views.append(
+            ft.View(
+                f"/task_{task_number}",
+                [
+                    ft.Text(f"Это содержание задания {task_number}", size=24),
+                    create_bottom_nav(1)
+                ],
+            )
+        )
+    page.update()
     # Функция перехода на страницу таблицы лидеров
     def route_to_leaderboard():
         page.views.clear()
