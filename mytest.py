@@ -11,11 +11,10 @@ def main(page: ft.Page):
     page.horizontal_alignment = ft.MainAxisAlignment.CENTER
     page.bgcolor = ft.colors.WHITE
     
-    localHost = 'http://172.31.1.203:3000'
+    localHost = 'http://172.31.1.103:3000'
     
     # Функция перехода на страницу профиля
     def route_to_profile():
-        # Используем сохраненные данные о пользователе
         page.views.clear()
         page.title = "Личный кабинет"
         page.bgcolor = ft.colors.WHITE
@@ -24,45 +23,34 @@ def main(page: ft.Page):
                 "/profile",
                 [
                     ft.Container(
-                        padding=ft.padding.only(left=50, top=50),  # Отступы для сдвига вниз и вправо
+                        padding=ft.padding.only(left=50, top=50),
                         content=ft.Row(
                             [
-                                # Фото профиля в круге
                                 ft.Container(
                                     content=ft.Image(src=user_info["photo_url"], width=120, height=120, fit=ft.ImageFit.COVER),
                                     width=120,
                                     height=120,
-                                    border_radius=60,  # Делаем круг
-                                    bgcolor=ft.colors.GREY_200,  # Цвет фона для фото
-                                    padding=5,  # Отступ внутри контейнера для границ
+                                    border_radius=60,
+                                    bgcolor=ft.colors.GREY_200,
+                                    padding=5,
                                 ),
-                                
-                                # Имя и логин справа от фото
                                 ft.Container(
                                     content=ft.Column(
                                         [
-                                            # Имя пользователя
                                             ft.Text(f"Имя: {user_info['name']}", color=ft.colors.BLACK, size=24),
-                                            
-                                            # Логин пользователя, меньшего размера и отцентрован
-                                            ft.Text(
-                                                f"Логин: {user_info['login']}", 
-                                                color=ft.colors.GREY, 
-                                                size=18, 
-                                                text_align=ft.TextAlign.CENTER,
-                                            )
+                                            ft.Text(f"Логин: {user_info['login']}", color=ft.colors.GREY, size=18, text_align=ft.TextAlign.CENTER),
+                                            ft.Text(f"Команда: {user_info['team']}", color=ft.colors.BLACK, size=24)
                                         ],
-                                        alignment=ft.MainAxisAlignment.CENTER,  # Центровка текста относительно фото
-                                        spacing=10  # Расстояние между именем и логином
+                                        alignment=ft.MainAxisAlignment.CENTER,
+                                        spacing=10
                                     ),
                                 ),
                             ],
-                            alignment=ft.MainAxisAlignment.START,  # Выравнивание ряда по левому краю
-                            vertical_alignment=ft.CrossAxisAlignment.CENTER,  # Вертикальная центровка изображения и текста
+                            alignment=ft.MainAxisAlignment.START,
+                            vertical_alignment=ft.CrossAxisAlignment.CENTER,
                         )
                     ),
-                    # Добавляем докбар на страницу
-                    create_bottom_nav(0)  # Индекс 0, так как это страница профиля
+                    create_bottom_nav(0)
                 ],
             )
         )
@@ -77,20 +65,17 @@ def main(page: ft.Page):
                 ft.NavigationDestination(icon=ft.icons.LEADERBOARD, label="Таблица лидеров"),
             ],
             selected_index=selected_index,
-            on_change=change_page,  # Обработчик нажатий
+            on_change=change_page,
         )
     
     # Функция обработки переходов по страницам
     def change_page(e):
         selected_index = e.control.selected_index
         if selected_index == 0:
-            # Переход на страницу профиля
             route_to_profile()
         elif selected_index == 1:
-            # Переход на страницу карты знаний
             route_to_knowledge_map()
         elif selected_index == 2:
-            # Переход на страницу таблицы лидеров
             route_to_leaderboard()
         page.update()
 
@@ -128,8 +113,7 @@ def main(page: ft.Page):
                 "/knowledge_map",
                 [
                     ft.Text("Это карта знаний", size=24),
-                    # Добавляем докбар на страницу
-                    create_bottom_nav(1)  # Индекс 1, так как это страница карты знаний
+                    create_bottom_nav(1)
                 ],
             )
         )
@@ -140,17 +124,53 @@ def main(page: ft.Page):
         page.views.clear()
         page.title = "Таблица лидеров"
         page.bgcolor = ft.colors.WHITE
+        
+        # Данные для таблицы лидеров
+        tt = requests.get(localHost + "/top-teams")
+        teams_data = json.loads(tt.text)
+
+        # Создаем таблицу с местами команд
+        leaderboard = ft.Column(
+            controls=[
+                ft.Row(
+                    controls=[
+                        ft.Text("Место", weight=ft.FontWeight.BOLD, size=18),
+                        ft.Text("Название команды", weight=ft.FontWeight.BOLD, size=18),
+                    ],
+                    alignment=ft.MainAxisAlignment.CENTER,
+                    spacing=20,
+                ),
+                *[
+                    ft.Row(
+                        controls=[
+                            ft.Text(f"{rank} место", size=16, width=50, text_align=ft.TextAlign.LEFT),
+                            ft.Text(teams_data["name"], size=16),
+                        ],
+                        alignment=ft.MainAxisAlignment.CENTER,
+                        spacing=20,
+                    ) for rank, team in zip(["1-е", "2-е", "3-е"], teams_data[:3])
+                ]
+            ]
+        )
+        
         page.views.append(
             ft.View(
                 "/leaderboard",
                 [
-                    ft.Text("Это таблица лидеров", size=24),
-                    # Добавляем докбар на страницу
-                    create_bottom_nav(2)  # Индекс 2, так как это страница таблицы лидеров
+                    ft.Column(
+                        controls=[
+                            ft.Text("Таблица лидеров", size=24, weight=ft.FontWeight.BOLD),
+                            leaderboard
+                        ],
+                        alignment=ft.MainAxisAlignment.START,
+                        horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+                        spacing=20
+                    ),
+                    create_bottom_nav(2)
                 ],
             )
         )
-        page.update()
+    page.update()
 
     # Кнопка "Войти"
     def login(e):
@@ -160,17 +180,15 @@ def main(page: ft.Page):
             r = requests.post(localHost + "/login", data={"login": email, "password": password})
             response = json.loads(r.text)
             if response['text'] == "Пользователь авторизориван!":
-                # Получаем информацию о пользователе
                 user_info_json = requests.post(localHost + "/userpage", data={"login": email})
                 uij = json.loads(user_info_json.text)
-                global user_info  # Указываем, что будем использовать глобальную переменную
+                global user_info
                 user_info = {
                     "name": uij['name'],
                     "login": email,
-                    "photo_url": response.get('photo_url', 'https://via.placeholder.com/100')  # Заглушка на случай отсутствия фото
+                    "photo_url": response.get('photo_url', localHost + uij['avatar']),
+                    "team": uij['team']
                 }
-                
-                # Переход на страницу профиля
                 route_to_profile()
                 
         else:
