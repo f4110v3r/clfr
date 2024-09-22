@@ -12,7 +12,7 @@ def main(page: ft.Page):
     email_input = ft.TextField(label="Электронная почта", width=300)
     password_input = ft.TextField(label="Пароль", password=True, width=300)
     
-    localHost = 'http://172.31.1.103:3000'
+    localHost = 'http://172.31.1.203:3000'
     
     # Функция перехода на страницу профиля
     def route_to_profile(user_info):
@@ -68,7 +68,6 @@ def main(page: ft.Page):
         if email and password:
             r = requests.post(localHost + "/login", data={"login": email, "password": password})
             response = json.loads(r.text)
-            
             if response['text'] == "Пользователь авторизориван!":
                 # Получаем информацию о пользователе
                 user_info = {
@@ -79,8 +78,7 @@ def main(page: ft.Page):
                 
                 # Переход на страницу профиля
                 route_to_profile(user_info)
-            else:
-                page.add(ft.Text(response['error'], color=ft.colors.RED))
+                
         else:
             page.add(ft.Text("Пожалуйста, введите электронную почту и пароль", color=ft.colors.RED))
 
