@@ -11,14 +11,7 @@ from kivy.core.window import Window
 from kivy.uix.textinput import TextInput
 from kivy.uix.label import Label
 import json
-"""""
-localHost='http://172.31.1.203:3000'
-r = requests.get(localHost)
-print(r.text)
 
-r=requests.post(localHost+"/login", data = {"username":"123", "password": "222"})
-print(r.text)
-"""
 localHost='http://172.31.1.203:3000'
 path=r"C:\Users\user\Documents\clfr\clfr\1052.4.jpg"
 layout = FloatLayout()
@@ -38,14 +31,20 @@ layout.add_widget(l2)
 def on_button_press(instance):
         r=requests.post(localHost+"/login", data = {"login":logininput.text, "password": passinput.text})
         l2.text=r.text
-"""""
-        button.bind(on_press=self.on_button_press)
-    
-    def on_button_press(self):
-        self.logininput.text = "Спасибо!"
-        """
+        layout.remove_widget(button)
+        layout.remove_widget(logininput)
+        layout.remove_widget(passinput)
+        layout.remove_widget(l)
+        layout.remove_widget(l2)
+        l3=Label(text='pass',font_size=40,size_hint =(.3, .10),pos =(672, 400))
+        layout.add_widget(l3)
 class MyApp(App):
     button.bind(on_press=on_button_press)
+    def build(self):
+        Window.clearcolor = (255, 255, 255, 1)
+        
+
+        return layout
     def build(self):
         Window.clearcolor = (255, 255, 255, 1)
         
