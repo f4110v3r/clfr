@@ -130,22 +130,79 @@ def main(page: ft.Page):
     def route_to_authorization():
         page.views.clear()
         page.title = "Авторизация"
-        page.bgcolor = ft.colors.WHITE
+        page.bgcolor = ft.colors.LIGHT_BLUE_50
+
+        # Поля ввода для авторизации
+        email_input = ft.TextField(
+            label="Логин",
+            width=300,
+            text_style=ft.TextStyle(size=16),
+            autofocus=True,  # Автофокус на первом поле
+        )
+        password_input = ft.TextField(
+            label="Пароль",
+            password=True,
+            width=300,
+            text_style=ft.TextStyle(size=16),
+        )
+        global a
+        global b
+        a = email_input.value
+        b = password_input.value
+        
+        # Кнопка входа
+        login_button = ft.ElevatedButton(
+            text="Войти",
+            on_click=login,  # Привязываем функцию login
+            width=150,
+            style=ft.ButtonStyle(
+                color=ft.colors.WHITE,
+                bgcolor=ft.colors.BLUE,
+                padding=ft.Padding(left=20, right=20, top=15, bottom=15),
+            ),
+        )
+
+        # Логотип или иконка для визуального оформления
+        logo_image = ft.Image(
+            src="https://your-logo-url.com/logo.png",  # Укажите ссылку на логотип или используйте локальный файл
+            width=150,
+            height=150,
+            fit=ft.ImageFit.CONTAIN,
+        )
+
+        # Оформление формы авторизации
+        form_container = ft.Container(
+            content=ft.Column(
+                controls=[
+                    logo_image,
+                    email_input,
+                    password_input,
+                    login_button,
+                ],
+                alignment=ft.MainAxisAlignment.CENTER,
+                horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+                spacing=20,
+            ),
+            padding=50,
+            border_radius=20,
+            bgcolor=ft.colors.WHITE,
+            shadow=ft.BoxShadow(
+                color=ft.colors.GREY_400,
+                blur_radius=10,
+                offset=ft.Offset(0, 4),
+            ),
+        )
+
+        # Отображение формы в центре экрана
         page.views.append(
             ft.View(
                 "/auth",
-                [
-                    ft.Column(
-                        controls=[
-                            email_input,
-                            password_input,
-                            login_button,
-                        ],
-                        alignment=ft.MainAxisAlignment.CENTER,
-                        horizontal_alignment=ft.CrossAxisAlignment.CENTER,
-                        spacing=20,
-                    ),
-                ],
+                controls=[
+                    ft.Container(
+                        content=form_container,
+                        alignment=ft.alignment.center,
+                    )
+                ]
             )
         )
         page.update()
@@ -157,13 +214,17 @@ def main(page: ft.Page):
         page.title = "Карта знаний - Пельмени"
         page.bgcolor = ft.colors.WHITE
 
+        r = requests.post(localHost + "/current-course", data={"login": user_info['login']})
+        response = json.loads(r.text)
         # Данные для курса
+        print(response)
         branches = {
             "Ветка 1": ["Задание 1.1", "Задание 1.2"],
             "Ветка 2": ["Задание 2.1", "Задание 2.2"],
             "Ветка 3": ["Задание 3.1", "Задание 3.2"],
         }
-
+        branches = response['curCourse']['branch']
+        info = response['curCourse']['info']
         # Функция для изменения цвета кружков
         def change_circle_color(branch):
             global selected_branch
@@ -192,7 +253,7 @@ def main(page: ft.Page):
                             border_radius=25,
                             bgcolor=ft.colors.GREEN if selected_branch == branch_name else ft.colors.GREY,
                             alignment=ft.alignment.center,
-                            on_click=lambda e, task=f"{branch_name} - {task}": route_to_task(task),  # Переход на задание
+                            on_click=lambda e, task=f"{branch_name} - {task}": route_to_task(task, info[branch_name]),  # Переход на задание
                         ) for i, task in enumerate(tasks)
                     ],
                 ],
@@ -244,21 +305,23 @@ def main(page: ft.Page):
         )
         page.update()
     # Функция для перехода на страницу задания
-    def route_to_task(task_name):
+    def route_to_task(task_name, info):
         page.views.clear()
         page.title = task_name
         page.bgcolor = ft.colors.WHITE
-
+        print(task_name, info)
         # Здесь добавьте контент для страницы задания
         page.views.append(
             ft.View(
                 f"/task_{task_name}",
                 [
                     ft.Text(f"Это содержание для {task_name}", size=24),
-                    create_bottom_nav(1)
+                    create_bottom_nav(1),
+                    ft.Text(f"{info}", size=24),
                 ],
             )
         )
+
         page.update()
     # Функция перехода на страницу таблицы лидеров
     def route_to_leaderboard():
@@ -315,17 +378,17 @@ def main(page: ft.Page):
 
     # Кнопка "Войти"
     def login(e):
-        email = email_input.value
-        password = password_input.value
+        email = 1
+        password = 1
         if email and password:
             r = requests.post(localHost + "/login", data={"login": email, "password": password})
             response = json.loads(r.text)
             if response['text'] == "Пользователь авторизориван!":
                 user_info_json = requests.post(localHost + "/userpage", data={"login": email})
                 uij = json.loads(user_info_json.text)
-                global user_info
                 global teammates
                 teammates=uij['teammates']
+                global user_info
                 user_info = {
                     "name": uij['name'],
                     "login": email,
@@ -336,12 +399,9 @@ def main(page: ft.Page):
                 
         else:
             page.add(ft.Text("Пожалуйста, введите электронную почту и пароль", color=ft.colors.RED))
-
-    # Поля ввода
     email_input = ft.TextField(label="Электронная почта", width=300)
     password_input = ft.TextField(label="Пароль", password=True, width=300)
     login_button = ft.ElevatedButton(text="Войти", on_click=login)
-
     # Изначально отображаем страницу авторизации
     route_to_authorization()
 
