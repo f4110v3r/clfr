@@ -11,7 +11,7 @@ def main(page: ft.Page):
     page.horizontal_alignment = ft.MainAxisAlignment.CENTER
     page.bgcolor = ft.colors.WHITE
     
-    localHost = 'http://172.31.1.203:3000'
+    localHost = 'http://172.31.1.103:3000'
     
     # Функция перехода на страницу профиля
     def route_to_profile():
@@ -50,7 +50,8 @@ def main(page: ft.Page):
                                                 color=ft.colors.GREY, 
                                                 size=18, 
                                                 text_align=ft.TextAlign.CENTER,
-                                            )
+                                            ),
+                                            ft.Text(f"Команда: {user_info['team']}", color=ft.colors.BLACK, size=24)
                                         ],
                                         alignment=ft.MainAxisAlignment.CENTER,  # Центровка текста относительно фото
                                         spacing=10  # Расстояние между именем и логином
@@ -167,7 +168,8 @@ def main(page: ft.Page):
                 user_info = {
                     "name": uij['name'],
                     "login": email,
-                    "photo_url": response.get('photo_url', 'https://via.placeholder.com/100')  # Заглушка на случай отсутствия фото
+                    "photo_url": response.get('photo_url', 'https://via.placeholder.com/100'),
+                    "team":uij['team'] 
                 }
                 
                 # Переход на страницу профиля
