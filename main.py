@@ -23,40 +23,43 @@ def main(page: ft.Page):
             ft.View(
                 "/profile",
                 [
-                    ft.Row(
-                        [
-                            # Фото профиля в круге
-                            ft.Container(
-                                content=ft.Image(src=user_info["photo_url"], width=120, height=120, fit=ft.ImageFit.COVER),
-                                width=120,
-                                height=120,
-                                border_radius=60,  # Делаем круг
-                                bgcolor=ft.colors.GREY_200,  # Цвет фона для фото
-                                padding=5,  # Отступ внутри контейнера для границ
-                            ),
-                            
-                            # Имя и логин справа от фото
-                            ft.Container(
-                                content=ft.Column(
-                                    [
-                                        # Имя пользователя
-                                        ft.Text(f"Имя: {user_info['name']}", color=ft.colors.BLACK, size=24),
-                                        
-                                        # Логин пользователя, меньшего размера и отцентрован
-                                        ft.Text(
-                                            f"Логин: {user_info['login']}", 
-                                            color=ft.colors.GREY, 
-                                            size=18, 
-                                            text_align=ft.TextAlign.CENTER,
-                                        )
-                                    ],
-                                    alignment=ft.MainAxisAlignment.CENTER,  # Центровка текста относительно фото
-                                    spacing=10  # Расстояние между именем и логином
+                    ft.Container(
+                        padding=ft.padding.only(left=50, top=50),  # Отступы для сдвига вниз и вправо
+                        content=ft.Row(
+                            [
+                                # Фото профиля в круге
+                                ft.Container(
+                                    content=ft.Image(src=user_info["photo_url"], width=120, height=120, fit=ft.ImageFit.COVER),
+                                    width=120,
+                                    height=120,
+                                    border_radius=60,  # Делаем круг
+                                    bgcolor=ft.colors.GREY_200,  # Цвет фона для фото
+                                    padding=5,  # Отступ внутри контейнера для границ
                                 ),
-                            ),
-                        ],
-                        alignment=ft.MainAxisAlignment.START,  # Выравнивание ряда по левому краю
-                        vertical_alignment=ft.CrossAxisAlignment.CENTER,  # Вертикальная центровка изображения и текста
+                                
+                                # Имя и логин справа от фото
+                                ft.Container(
+                                    content=ft.Column(
+                                        [
+                                            # Имя пользователя
+                                            ft.Text(f"Имя: {user_info['name']}", color=ft.colors.BLACK, size=24),
+                                            
+                                            # Логин пользователя, меньшего размера и отцентрован
+                                            ft.Text(
+                                                f"Логин: {user_info['login']}", 
+                                                color=ft.colors.GREY, 
+                                                size=18, 
+                                                text_align=ft.TextAlign.CENTER,
+                                            )
+                                        ],
+                                        alignment=ft.MainAxisAlignment.CENTER,  # Центровка текста относительно фото
+                                        spacing=10  # Расстояние между именем и логином
+                                    ),
+                                ),
+                            ],
+                            alignment=ft.MainAxisAlignment.START,  # Выравнивание ряда по левому краю
+                            vertical_alignment=ft.CrossAxisAlignment.CENTER,  # Вертикальная центровка изображения и текста
+                        )
                     )
                 ],
             )
@@ -72,9 +75,9 @@ def main(page: ft.Page):
             response = json.loads(r.text)
             if response['text'] == "Пользователь авторизориван!":
                 # Получаем информацию о пользователе
-                user_info_json=requests.post(localHost+"/userpage",data={"login":email})
+                user_info_json = requests.post(localHost + "/userpage", data={"login": email})
                 print(user_info_json)
-                uij=json.loads(user_info_json.text)
+                uij = json.loads(user_info_json.text)
                 user_info = {
                     "name": uij['name'],
                     "login": email,
