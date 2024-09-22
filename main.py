@@ -2,10 +2,12 @@ import flet as ft
 import requests
 import json
 
-# Создаем глобальную переменную для хранения информации о пользователе
 user_info = {}
+selected_branch = None  # Глобальная переменная для хранения выбранной ветки
 
 def main(page: ft.Page):
+    global selected_branch  # Указываем, что будем использовать глобальную переменную
+
     page.title = "Приложение"
     page.vertical_alignment = ft.MainAxisAlignment.CENTER
     page.horizontal_alignment = ft.MainAxisAlignment.CENTER
@@ -19,10 +21,7 @@ def main(page: ft.Page):
         page.bgcolor = ft.colors.WHITE
 
         # Пример данных участников команды
-        team_members = [
-            {"name": "Участник 1", "photo_url": "url_участника_1", "progress": "50%"},
-            {"name": "Участник 2", "photo_url": "url_участника_2", "progress": "70%"},
-        ]
+        
 
         # Контейнер для участников команды content=ft.Text(f"Команда: {user_info['team']}", color=ft.colors.BLACK, size=24)
         
@@ -33,7 +32,7 @@ def main(page: ft.Page):
             ft.Row(
                 controls=[
                     ft.Container(
-                        content=ft.Image(src=member["photo_url"], width=60, height=60, fit=ft.ImageFit.COVER),
+                        content=ft.Image(src=localHost+member['avatar'], width=60, height=60, fit=ft.ImageFit.COVER),
                         width=60,
                         height=60,
                         border_radius=30,
@@ -42,8 +41,8 @@ def main(page: ft.Page):
                     ),
                     ft.Column(
                         controls=[
-                            ft.Text(member["name"], color=ft.colors.BLACK, size=16),
-                            ft.Text(f"Прогресс: {member['progress']}", color=ft.colors.GREY, size=14),
+                            ft.Text(member['name'], color=ft.colors.BLACK, size=16),
+                            ft.Text(f"Прогресс: {member['points']}", color=ft.colors.GREY, size=14),
                         ],
                         alignment=ft.MainAxisAlignment.START,
                         spacing=5
@@ -51,7 +50,7 @@ def main(page: ft.Page):
                 ],
                 alignment=ft.MainAxisAlignment.END,
                 vertical_alignment=ft.CrossAxisAlignment.CENTER,
-            ) for member in team_members
+            ) for member in teammates
     
     ],
     spacing=10
@@ -108,6 +107,7 @@ def main(page: ft.Page):
                 ft.NavigationDestination(icon=ft.icons.PERSON, label="Профиль"),
                 ft.NavigationDestination(icon=ft.icons.MAP, label="Карта знаний"),
                 ft.NavigationDestination(icon=ft.icons.LEADERBOARD, label="Таблица лидеров"),
+                ft.NavigationDestination(icon=ft.icons.BOOK,label='Словарь' )
             ],
             selected_index=selected_index,
             on_change=change_page,
@@ -122,6 +122,8 @@ def main(page: ft.Page):
             route_to_knowledge_map()
         elif selected_index == 2:
             route_to_leaderboard()
+        elif selected_index == 3:
+            route_to_dict()
         page.update()
     
     # Функция перехода на страницу авторизации
@@ -150,33 +152,54 @@ def main(page: ft.Page):
 
     # Функция перехода на страницу "Карта знаний"
     def route_to_knowledge_map():
+        global selected_branch
         page.views.clear()
-        page.title = "Карта знаний"
+        page.title = "Карта знаний - Пельмени"
         page.bgcolor = ft.colors.WHITE
 
-        # Пример данных с заданиями
-        tasks = [
-            {"number": 1, "title": "Задание 1"},
-            {"number": 2, "title": "Задание 2"},
-            {"number": 3, "title": "Задание 3"},
-            {"number": 4, "title": "Задание 4"},
-        ]
+        # Данные для курса
+        branches = {
+            "Ветка 1": ["Задание 1.1", "Задание 1.2"],
+            "Ветка 2": ["Задание 2.1", "Задание 2.2"],
+            "Ветка 3": ["Задание 3.1", "Задание 3.2"],
+        }
 
-        task_circles = ft.Row(
-            controls=[
-                ft.Container(
-                    content=ft.Text(str(task["number"]), color=ft.colors.WHITE, size=20),
-                    width=50,
-                    height=50,
-                    border_radius=25,
-                    bgcolor=ft.colors.BLUE,
-                    alignment=ft.alignment.center,
-                    on_click=lambda e: route_to_task(task["number"]),  # Переход на страницу задания
-                ) for task in tasks
-            ],
-            alignment=ft.MainAxisAlignment.CENTER,
-            spacing=20
-        )
+        # Функция для изменения цвета кружков
+        def change_circle_color(branch):
+            global selected_branch
+            selected_branch = branch
+            page.update()
+
+        # Создание кругов для каждой ветки
+        branch_circles = []
+        for branch_name, tasks in branches.items():
+            row = ft.Row(
+                controls=[
+                    ft.Container(
+                        content=ft.Text(branch_name, color=ft.colors.WHITE, size=14),
+                        width=100,
+                        height=30,
+                        border_radius=15,
+                        bgcolor=ft.colors.BLUE if selected_branch == branch_name else ft.colors.GREY,
+                        alignment=ft.alignment.center,
+                        on_click=lambda e, branch=branch_name: change_circle_color(branch)  # Меняет цвет
+                    ),
+                    *[
+                        ft.Container(
+                            content=ft.Text(str(i + 1), color=ft.colors.WHITE, size=20),
+                            width=50,
+                            height=50,
+                            border_radius=25,
+                            bgcolor=ft.colors.GREEN if selected_branch == branch_name else ft.colors.GREY,
+                            alignment=ft.alignment.center,
+                            on_click=lambda e, task=f"{branch_name} - {task}": route_to_task(task),  # Переход на задание
+                        ) for i, task in enumerate(tasks)
+                    ],
+                ],
+                alignment=ft.MainAxisAlignment.CENTER,
+                spacing=20
+            )
+            branch_circles.append(row)
 
         page.views.append(
             ft.View(
@@ -184,8 +207,8 @@ def main(page: ft.Page):
                 [
                     ft.Column(
                         controls=[
-                            ft.Text("Карта учебного курса", size=24, weight=ft.FontWeight.BOLD, text_align=ft.TextAlign.CENTER),
-                            task_circles
+                            ft.Text("Курс: Пельмени", size=24, weight=ft.FontWeight.BOLD, text_align=ft.TextAlign.CENTER),
+                            *branch_circles
                         ],
                         alignment=ft.MainAxisAlignment.CENTER,
                         spacing=20
@@ -194,24 +217,49 @@ def main(page: ft.Page):
                 ],
             )
         )
-    page.update()
-
-    def route_to_task(task_number):
+        page.update()
+    def route_to_dict():
         page.views.clear()
-        page.title = f"Задание {task_number}"
+        page.title = "Словарь"
+        page.bgcolor = ft.colors.WHITE
+        page.views.append(
+            ft.View(
+                "/dictionary",
+                [
+                    ft.Column(
+                        controls=[
+                            ft.Text("Словарь определений по пельменям", width=300,size=24),
+                            ft.Text("Определение 1", width=300,size=10),
+                            ft.Text("Определение 2", width=300,size=10),
+                            ft.Text("Определение 3", width=300,size=10),
+
+
+                        ],
+                        alignment=ft.MainAxisAlignment.CENTER,
+                        horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+                        spacing=20,
+                    ),
+                ],
+            )
+        )
+        page.update()
+    # Функция для перехода на страницу задания
+    def route_to_task(task_name):
+        page.views.clear()
+        page.title = task_name
         page.bgcolor = ft.colors.WHITE
 
         # Здесь добавьте контент для страницы задания
         page.views.append(
             ft.View(
-                f"/task_{task_number}",
+                f"/task_{task_name}",
                 [
-                    ft.Text(f"Это содержание задания {task_number}", size=24),
+                    ft.Text(f"Это содержание для {task_name}", size=24),
                     create_bottom_nav(1)
                 ],
             )
         )
-    page.update()
+        page.update()
     # Функция перехода на страницу таблицы лидеров
     def route_to_leaderboard():
         page.views.clear()
@@ -276,6 +324,8 @@ def main(page: ft.Page):
                 user_info_json = requests.post(localHost + "/userpage", data={"login": email})
                 uij = json.loads(user_info_json.text)
                 global user_info
+                global teammates
+                teammates=uij['teammates']
                 user_info = {
                     "name": uij['name'],
                     "login": email,
