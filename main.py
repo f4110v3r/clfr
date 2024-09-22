@@ -18,6 +18,47 @@ def main(page: ft.Page):
         page.views.clear()
         page.title = "Личный кабинет"
         page.bgcolor = ft.colors.WHITE
+
+        # Пример данных участников команды
+        team_members = [
+            {"name": "Участник 1", "photo_url": "url_участника_1", "progress": "50%"},
+            {"name": "Участник 2", "photo_url": "url_участника_2", "progress": "70%"},
+        ]
+
+        # Контейнер для участников команды content=ft.Text(f"Команда: {user_info['team']}", color=ft.colors.BLACK, size=24)
+        
+        members_container = ft.Column(
+    controls=[
+        
+        
+            ft.Row(
+                controls=[
+                    ft.Container(
+                        content=ft.Image(src=member["photo_url"], width=60, height=60, fit=ft.ImageFit.COVER),
+                        width=60,
+                        height=60,
+                        border_radius=30,
+                        bgcolor=ft.colors.GREY_200,
+                        padding=5,
+                    ),
+                    ft.Column(
+                        controls=[
+                            ft.Text(member["name"], color=ft.colors.BLACK, size=16),
+                            ft.Text(f"Прогресс: {member['progress']}", color=ft.colors.GREY, size=14),
+                        ],
+                        alignment=ft.MainAxisAlignment.START,
+                        spacing=5
+                    ),
+                ],
+                alignment=ft.MainAxisAlignment.END,
+                vertical_alignment=ft.CrossAxisAlignment.CENTER,
+            ) for member in team_members
+    
+    ],
+    spacing=10
+)
+
+
         page.views.append(
             ft.View(
                 "/profile",
@@ -39,7 +80,7 @@ def main(page: ft.Page):
                                         [
                                             ft.Text(f"Имя: {user_info['name']}", color=ft.colors.BLACK, size=24),
                                             ft.Text(f"Логин: {user_info['login']}", color=ft.colors.GREY, size=18, text_align=ft.TextAlign.CENTER),
-                                            ft.Text(f"Команда: {user_info['team']}", color=ft.colors.BLACK, size=24)
+                                           
                                         ],
                                         alignment=ft.MainAxisAlignment.CENTER,
                                         spacing=10
@@ -50,11 +91,16 @@ def main(page: ft.Page):
                             vertical_alignment=ft.CrossAxisAlignment.CENTER,
                         )
                     ),
+                    ft.Container(
+                        padding=ft.padding.only(right=20, bottom=20),
+                        content=members_container
+                    ),
                     create_bottom_nav(0)
                 ],
             )
         )
         page.update()
+
 
     # Функция создания докбара
     def create_bottom_nav(selected_index):
@@ -144,7 +190,7 @@ def main(page: ft.Page):
                     ft.Row(
                         controls=[
                             ft.Text(f"{rank} место", size=16, width=50, text_align=ft.TextAlign.LEFT),
-                            ft.Text(teams_data["name"], size=16),
+                            ft.Text(team['name'], size=16),
                         ],
                         alignment=ft.MainAxisAlignment.CENTER,
                         spacing=20,
@@ -204,4 +250,3 @@ def main(page: ft.Page):
 
 # Запуск приложения
 ft.app(target=main)
-    
